@@ -1,6 +1,7 @@
 package com.ddl.quizservice.service;
 
 import com.ddl.quizservice.dao.QuizDAO;
+import com.ddl.quizservice.feign.QuizInterface;
 import com.ddl.quizservice.model.QuestionWrapper;
 import com.ddl.quizservice.model.Quiz;
 import com.ddl.quizservice.model.Response;
@@ -17,17 +18,15 @@ import java.util.Optional;
 public class QuizService {
     @Autowired
     QuizDAO quizDAO;
-    public ResponseEntity<String> createQuiz(String category, int numQ, String title) {
 
-        // call the generate url of question service
-        // RestTemplate http://localhost:8080/question/generate
-        // Not hard code the ip and port
-//        List<Integer> questions = ;
-//
-//        Quiz quiz = new Quiz();
-//        quiz.setTitle(title);
-//        quiz.setQuestions(questions);
-//        quizDAO.save(quiz);
+    @Autowired
+    QuizInterface quizInterface;
+    public ResponseEntity<String> createQuiz(String category, int numQ, String title) {
+        List<Integer> questions = quizInterface.getQuestionsForQuiz(category, numQ).getBody();
+        Quiz quiz = new Quiz();
+        quiz.setTitle(title);
+        quiz.setQuestionIds(questions);
+        quizDAO.save(quiz);
 
         return new ResponseEntity<>("success", HttpStatus.CREATED);
     }
